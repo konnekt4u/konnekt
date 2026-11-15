@@ -7,13 +7,14 @@ Static single-page website for the Konnekt creator network.
 - `index.html` — page shell and navigation
 - `assets/styles.css` — responsive dark-and-gold styling
 - `assets/app.js` — single-tab navigation, creator filters, Supabase auth, profiles, portfolios and project applications
-- `supabase/migrations/20261115090000_creator_discovery_and_portfolios.sql` — additive database migration
+- `supabase/migrations/20261115090000_creator_discovery_and_portfolios.sql` — additive creator schema migration
+- `supabase/migrations/20261115091000_creator_portfolio_media_storage.sql` — public portfolio media bucket with creator-folder write policies
 
 ## Supabase
 
 The frontend uses the Supabase project URL and publishable key. A publishable key is intended for browser use; never put a service-role or secret key in frontend files.
 
-Creator birth dates are stored in `creator_private_details`, a private table with owner-only RLS. The public creator directory only reads the selected age-range field on `profiles`.
+Creator birth dates are stored in `creator_private_details`, a private table with owner-only RLS. The public creator directory only reads the selected age-range field on `profiles`. Portfolio files use the public `creator-portfolio` Storage bucket; authenticated creators can write only under their own user-id folder. Upload limit: 50 MB per file; allowed formats include common images, MP4/WebM video and PDF.
 
 ## Creator discovery
 
