@@ -661,7 +661,8 @@
           if (error) { alert(`We couldn't submit your interest: ${error.message}`); return; }
           button.textContent = 'Application sent ✓';
           button.setAttribute('aria-pressed', 'true');
-        }, { once: true });
+          button.disabled = true;
+        });
       });
 
       refreshAuth();
