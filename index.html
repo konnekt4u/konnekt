@@ -1,0 +1,548 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#11120f">
+  <title>Konnekt — Creators, connected</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #11120f;
+      --panel: #191a16;
+      --panel-2: #20211c;
+      --text: #f3ecdc;
+      --muted: #b9b1a2;
+      --gold: #d6af5d;
+      --line: #484231;
+      --serif: Georgia, "Times New Roman", serif;
+      --sans: Inter, system-ui, -apple-system, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background: var(--bg);
+      color: var(--text);
+      font: 16px/1.6 var(--sans);
+    }
+    a { color: inherit; }
+    button, input, textarea, select { font: inherit; }
+    button, a { -webkit-tap-highlight-color: transparent; }
+    :focus-visible { outline: 3px solid var(--gold); outline-offset: 3px; }
+    .wrap { width: min(1180px, calc(100% - 40px)); margin: auto; }
+    .eyebrow {
+      color: var(--gold);
+      font-size: .72rem;
+      font-weight: 800;
+      letter-spacing: .16em;
+      text-transform: uppercase;
+    }
+
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 5;
+      background: #11120fee;
+      border-bottom: 1px solid #d6af5d35;
+      backdrop-filter: blur(12px);
+    }
+    nav {
+      min-height: 76px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .logo {
+      text-decoration: none;
+      font-weight: 950;
+      font-size: 1.35rem;
+      letter-spacing: .04em;
+    }
+    .logo span { color: var(--gold); }
+    nav ul {
+      display: flex;
+      gap: 26px;
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    nav a:not(.logo) { text-decoration: none; font-weight: 650; }
+    nav a:hover { color: var(--gold); }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 46px;
+      padding: 10px 18px;
+      border: 1px solid var(--gold);
+      border-radius: 999px;
+      background: var(--gold);
+      color: #17150f;
+      text-decoration: none;
+      font-weight: 800;
+      cursor: pointer;
+    }
+    .button:hover { filter: brightness(1.08); }
+    .button.secondary { background: transparent; color: var(--text); }
+
+    .hero {
+      padding: 76px 0 46px;
+      background:
+        radial-gradient(ellipse at 80% 45%, #d6af5d1c, transparent 36%),
+        var(--bg);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      align-items: center;
+      gap: 48px;
+      min-height: 470px;
+    }
+    h1 {
+      max-width: 740px;
+      margin: 18px 0;
+      font-size: clamp(3.2rem, 8vw, 6.7rem);
+      line-height: .96;
+      letter-spacing: -.07em;
+    }
+    h1 em {
+      color: var(--gold);
+      font: 500 1em/.95 var(--serif);
+      letter-spacing: -.06em;
+    }
+    .hero-copy > p {
+      max-width: 580px;
+      color: var(--muted);
+      font-size: 1.08rem;
+    }
+    .actions { display: flex; gap: 12px; flex-wrap: wrap; margin-top: 26px; }
+
+    .brand-art {
+      min-height: 350px;
+      display: grid;
+      place-items: center;
+      position: relative;
+    }
+    .brand-art::before {
+      content: "";
+      position: absolute;
+      width: min(330px, 85%);
+      aspect-ratio: 1;
+      border: 1px solid #d6af5d55;
+      border-radius: 50%;
+      box-shadow: 0 0 90px #d6af5d14;
+    }
+    .brand-art svg { width: min(420px, 100%); position: relative; }
+    .brand-caption {
+      position: absolute;
+      bottom: 10px;
+      color: var(--muted);
+      font-size: .78rem;
+      letter-spacing: .12em;
+    }
+    .creator-dot { animation: float 3s ease-in-out infinite alternate; }
+    .creator-dot:nth-child(2) { animation-delay: .5s; }
+    .creator-dot:nth-child(3) { animation-delay: 1s; }
+    @keyframes float { to { transform: translateY(-8px); } }
+
+    .focus-strip {
+      border-block: 1px solid var(--line);
+      background: #171814;
+    }
+    .focus-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+    }
+    .focus-grid div {
+      padding: 18px 12px;
+      border-right: 1px solid var(--line);
+      text-align: center;
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .focus-grid div:last-child { border: 0; }
+    .focus-grid b { color: var(--gold); margin-right: 8px; }
+
+    section { padding: 82px 0; }
+    .section-head {
+      display: flex;
+      align-items: end;
+      justify-content: space-between;
+      gap: 28px;
+      margin-bottom: 28px;
+    }
+    h2 {
+      margin: 8px 0 0;
+      font-size: clamp(2.4rem, 5vw, 4.4rem);
+      line-height: 1;
+      letter-spacing: -.06em;
+    }
+    .section-head p { max-width: 460px; color: var(--muted); margin: 0; }
+
+    .filter-row { display: flex; flex-wrap: wrap; gap: 8px; margin: 24px 0; }
+    .filter {
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 9px 14px;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .filter[aria-pressed="true"], .filter:hover {
+      background: var(--gold);
+      border-color: var(--gold);
+      color: #17150f;
+    }
+    .creator-grid, .project-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+    }
+    .card {
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--panel);
+      transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+    .card:hover {
+      transform: translateY(-4px);
+      border-color: var(--gold);
+      box-shadow: 0 12px 34px #d6af5d20;
+    }
+    .creator-card {
+      padding: 20px;
+      text-align: left;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .avatar {
+      width: 54px;
+      height: 54px;
+      display: grid;
+      place-items: center;
+      margin-bottom: 14px;
+      border-radius: 16px;
+      background: #d6af5d;
+      color: #17150f;
+      font-weight: 900;
+    }
+    .role { color: var(--gold); font-size: .75rem; font-weight: 800; text-transform: uppercase; }
+    .muted { color: var(--muted); }
+    .tags { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 14px; }
+    .tags span {
+      border: 1px solid var(--line);
+      border-radius: 99px;
+      padding: 3px 8px;
+      color: var(--muted);
+      font-size: .72rem;
+    }
+
+    .project-card { overflow: hidden; }
+    .project-art {
+      min-height: 150px;
+      display: grid;
+      place-items: center;
+      background: linear-gradient(140deg, #4a3d23, #22231c);
+      color: var(--gold);
+      font-size: 2.5rem;
+      font-weight: 900;
+    }
+    .project-body { padding: 20px; }
+    .project-body h3 { margin: 8px 0; }
+    .project-body p { color: var(--muted); }
+    .project-body button { margin-top: 8px; }
+
+    .contact {
+      background: var(--panel);
+      border-block: 1px solid var(--line);
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: .8fr 1.2fr;
+      gap: 36px;
+    }
+    .contact-form {
+      display: grid;
+      gap: 14px;
+      padding: 24px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--bg);
+    }
+    label { display: grid; gap: 6px; font-weight: 700; font-size: .86rem; }
+    input, textarea, select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      background: #191a16;
+      color: var(--text);
+    }
+    textarea { min-height: 120px; resize: vertical; }
+
+    footer { padding: 32px 0; color: var(--muted); }
+    .footer-row { display: flex; justify-content: space-between; gap: 20px; flex-wrap: wrap; }
+
+    dialog {
+      width: min(520px, calc(100% - 24px));
+      max-height: 85vh;
+      overflow: auto;
+      border: 1px solid var(--gold);
+      border-radius: 16px;
+      padding: 28px;
+      background: var(--panel);
+      color: var(--text);
+    }
+    dialog::backdrop { background: #000b; backdrop-filter: blur(5px); }
+    .close { float: right; }
+    @media (max-width: 760px) {
+      .hero-grid, .contact-grid { grid-template-columns: 1fr; }
+      .hero { padding-top: 48px; }
+      .hero-grid { gap: 20px; }
+      .section-head { display: block; }
+      .section-head p { margin-top: 14px; }
+      .creator-grid, .project-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 520px) {
+      .wrap { width: calc(100% - 28px); }
+      nav { flex-wrap: wrap; padding: 12px 0; }
+      nav ul { order: 3; width: 100%; justify-content: space-between; gap: 10px; }
+      nav li a { font-size: .8rem; }
+      .hero-grid { min-height: 0; }
+      .brand-art { min-height: 270px; }
+      .focus-grid { grid-template-columns: repeat(2, 1fr); }
+      .focus-grid div:nth-child(2) { border-right: 0; }
+      .focus-grid div:nth-child(-n+2) { border-bottom: 1px solid var(--line); }
+      .creator-grid, .project-grid { grid-template-columns: 1fr; }
+      section { padding: 58px 0; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { animation-duration: .01ms !important; scroll-behavior: auto !important; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <nav class="wrap" aria-label="Main navigation">
+      <a class="logo" href="#home">K<span>O</span>NNEKT</a>
+      <ul>
+        <li><a href="#work">Work</a></li>
+        <li><a href="#creators">Creators</a></li>
+        <li><a href="#projects">Projects</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+      <button class="button secondary" id="login-open">Creator login</button>
+    </nav>
+  </header>
+
+  <main id="home">
+    <section class="hero">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <div class="eyebrow">Independent media & creative production</div>
+          <h1>Your talent.<br><em>Your people.<br>Your spotlight.</em></h1>
+          <p>Konnekt brings creative ideas, people, and production together to make original stories, brand campaigns, and live experiences.</p>
+          <div class="actions">
+            <a class="button" href="#contact">Start your journey ↗</a>
+            <a class="button secondary" href="#creators">Meet the creators</a>
+          </div>
+        </div>
+
+        <div class="brand-art" role="img" aria-label="Creators connected around the Konnekt K">
+          <svg viewBox="0 0 420 300" aria-hidden="true">
+            <line x1="115" y1="92" x2="210" y2="150" stroke="#d6af5d" stroke-width="5"/>
+            <line x1="305" y1="92" x2="210" y2="150" stroke="#d6af5d" stroke-width="5"/>
+            <line x1="115" y1="208" x2="210" y2="150" stroke="#d6af5d" stroke-width="5"/>
+            <line x1="305" y1="208" x2="210" y2="150" stroke="#d6af5d" stroke-width="5"/>
+            <circle class="creator-dot" cx="115" cy="92" r="24" fill="#b96b48"/>
+            <circle class="creator-dot" cx="305" cy="92" r="24" fill="#75876a"/>
+            <circle class="creator-dot" cx="115" cy="208" r="24" fill="#d5b75e"/>
+            <circle class="creator-dot" cx="305" cy="208" r="24" fill="#947249"/>
+            <circle cx="210" cy="150" r="42" fill="#d6af5d"/>
+            <text x="210" y="166" text-anchor="middle" fill="#17150f"
+              font-family="Arial, sans-serif" font-size="46" font-weight="900">K</text>
+          </svg>
+          <div class="brand-caption">CREATORS · IDEAS · PRODUCTION</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="focus-strip">
+      <div class="wrap focus-grid">
+        <div><b>01</b> Original content</div>
+        <div><b>02</b> Brand campaigns</div>
+        <div><b>03</b> Creator partnerships</div>
+        <div><b>04</b> Live experiences</div>
+      </div>
+    </div>
+
+    <section id="work">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="eyebrow">Konnekt / work</div><h2>Stories in<br>the making.</h2></div>
+          <p>We bring the right people together to shape ideas, produce content, and create experiences.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="creators">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="eyebrow">The Konnekt creator network</div><h2>The right people<br>make the story.</h2></div>
+          <p>Explore creative talent and find collaborators for your next film, campaign, or live experience.</p>
+        </div>
+
+        <div class="filter-row" role="group" aria-label="Filter creators">
+          <button class="filter" aria-pressed="true" data-filter="all">All talents</button>
+          <button class="filter" aria-pressed="false" data-filter="Video editing">Video editing</button>
+          <button class="filter" aria-pressed="false" data-filter="Acting">Acting</button>
+          <button class="filter" aria-pressed="false" data-filter="Cinematography">Cinematography</button>
+          <button class="filter" aria-pressed="false" data-filter="Graphic design">Graphic design</button>
+        </div>
+        <div class="creator-grid" id="creator-grid"></div>
+      </div>
+    </section>
+
+    <section id="projects">
+      <div class="wrap">
+        <div class="section-head">
+          <div><div class="eyebrow">Make it together</div><h2>Your next project<br>starts here.</h2></div>
+          <p>Bring an idea. Find your people. Build something worth sharing.</p>
+        </div>
+        <div class="project-grid">
+          <article class="card project-card">
+            <div class="project-art">Short film</div>
+            <div class="project-body"><h3>One-Minute Mystery</h3><p>A suspense short looking for actors and an editor.</p><button class="button secondary interest">I’m interested</button></div>
+          </article>
+          <article class="card project-card">
+            <div class="project-art">Music video</div>
+            <div class="project-body"><h3>Campus in Motion</h3><p>A visual portrait of campus life made by students.</p><button class="button secondary interest">I’m interested</button></div>
+          </article>
+          <article class="card project-card">
+            <div class="project-art">Creative challenge</div>
+            <div class="project-body"><h3>Reimagine the Ordinary</h3><p>Turn an everyday moment into a photo, poster, or reel.</p><button class="button secondary interest">I’m interested</button></div>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section class="contact" id="contact">
+      <div class="wrap contact-grid">
+        <div>
+          <div class="eyebrow">Start a conversation</div>
+          <h2>Let’s make<br>something together.</h2>
+          <p class="muted">Tell us what you’re creating and what kind of collaborators you need.</p>
+          <p><a href="mailto:konnekt4u@gmail.com">konnekt4u@gmail.com</a></p>
+        </div>
+        <form class="contact-form" action="mailto:konnekt4u@gmail.com" method="post" enctype="text/plain">
+          <label>Your name<input name="name" autocomplete="name" required></label>
+          <label>Email address<input name="email" type="email" autocomplete="email" required></label>
+          <label>Project type
+            <select name="project">
+              <option>Film or video</option><option>Brand campaign</option>
+              <option>Photography</option><option>Live event</option><option>Other</option>
+            </select>
+          </label>
+          <label>What do you need?<textarea name="message" required></textarea></label>
+          <button class="button" type="submit">Send your enquiry ↗</button>
+        </form>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="wrap footer-row">
+      <a class="logo" href="#home">K<span>O</span>NNEKT</a>
+      <span>© 2026 Konnekt. Creative ideas, made together.</span>
+      <span><a href="https://www.instagram.com/konnekt4u?rpxt=MXJud3l0OW9laHppMw==" target="_blank" rel="noopener">Instagram</a> ·
+        <a href="https://www.youtube.com/@KonnektMedia4u" target="_blank" rel="noopener">YouTube</a></span>
+    </div>
+  </footer>
+
+  <dialog id="profile-dialog">
+    <button class="button secondary close" id="dialog-close">Close</button>
+    <div id="profile-content"></div>
+  </dialog>
+
+  <!-- This is login UI only. Connect it to Supabase Auth to enable real accounts. -->
+  <dialog id="login-dialog">
+    <button class="button secondary close" id="login-close">Close</button>
+    <div class="eyebrow">Konnekt creator network</div>
+    <h2>Creator login</h2>
+    <p class="muted">Connect this form to Supabase Auth to enable sign-in and account creation.</p>
+    <p><button class="button" type="button" disabled>Continue with Google</button></p>
+    <label>Email address<input type="email" autocomplete="email"></label>
+    <p><label>Password<input type="password" autocomplete="current-password"></label></p>
+    <button class="button" type="button" disabled>Sign in</button>
+  </dialog>
+
+  <script>
+    const creators = [
+      {name:"Aditya Kumar", role:"Video editing", study:"Engineering · Year 2", bio:"Turning everyday clips into cinematic stories.", tags:["DaVinci Resolve","Reels","Short films"]},
+      {name:"Sri Reddy", role:"Acting", study:"Arts & Science · Year 3", bio:"Interested in short films, theatre and Telugu dialogue.", tags:["Acting","Telugu","Drama"]},
+      {name:"Varun Mehta", role:"Cinematography", study:"Engineering · Year 2", bio:"Learning to tell stories through light and frames.", tags:["Camera","Short films","Lighting"]},
+      {name:"Nisha Shah", role:"Graphic design", study:"Design · Year 1", bio:"Posters, identities and visual concepts for creators.", tags:["Posters","Branding","Illustration"]}
+    ];
+
+    const grid = document.querySelector("#creator-grid");
+    const profileDialog = document.querySelector("#profile-dialog");
+    const profileContent = document.querySelector("#profile-content");
+
+    function renderCreators(filter = "all") {
+      const shown = creators.filter(person => filter === "all" || person.role === filter);
+      grid.innerHTML = shown.map((person, index) => `
+        <button class="card creator-card" type="button" data-index="${creators.indexOf(person)}">
+          <span class="avatar" aria-hidden="true">${person.name.split(" ").map(x => x[0]).join("")}</span>
+          <strong>${person.name}</strong>
+          <div class="role">${person.role}</div>
+          <div class="muted">${person.study}</div>
+          <p>${person.bio}</p>
+          <span class="tags">${person.tags.map(tag => `<span>${tag}</span>`).join("")}</span>
+        </button>
+      `).join("");
+
+      grid.querySelectorAll(".creator-card").forEach(card => {
+        card.addEventListener("click", () => {
+          const person = creators[Number(card.dataset.index)];
+          profileContent.innerHTML = `
+            <div class="eyebrow">Creator profile</div>
+            <h2>${person.name}</h2>
+            <p class="role">${person.role}</p>
+            <p class="muted">${person.study}</p>
+            <p>${person.bio}</p>
+            <p class="tags">${person.tags.map(tag => `<span>${tag}</span>`).join("")}</p>
+          `;
+          profileDialog.showModal();
+        });
+      });
+    }
+
+    document.querySelectorAll(".filter").forEach(button => {
+      button.addEventListener("click", () => {
+        document.querySelectorAll(".filter").forEach(item => item.setAttribute("aria-pressed", "false"));
+        button.setAttribute("aria-pressed", "true");
+        renderCreators(button.dataset.filter);
+      });
+    });
+
+    document.querySelector("#dialog-close").addEventListener("click", () => profileDialog.close());
+    document.querySelector("#login-open").addEventListener("click", () => document.querySelector("#login-dialog").showModal());
+    document.querySelector("#login-close").addEventListener("click", () => document.querySelector("#login-dialog").close());
+
+    document.querySelectorAll(".interest").forEach(button => {
+      button.addEventListener("click", () => {
+        button.textContent = button.textContent === "I’m interested" ? "Interested ✓" : "I’m interested";
+        button.setAttribute("aria-pressed", button.textContent.includes("Interested ✓"));
+      });
+    });
+
+    renderCreators();
+  </script>
+</body>
+</html>
