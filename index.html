@@ -440,7 +440,7 @@
           <p class="muted">Tell us what you’re creating and what kind of collaborators you need.</p>
           <p><a href="mailto:konnekt4u@gmail.com">konnekt4u@gmail.com</a></p>
         </div>
-        <form class="contact-form" action="mailto:konnekt4u@gmail.com" method="post" enctype="text/plain">
+        <form class="contact-form" id="contact-form">
           <label>Your name<input name="name" autocomplete="name" required></label>
           <label>Email address<input name="email" type="email" autocomplete="email" required></label>
           <label>Project type
@@ -470,16 +470,18 @@
     <div id="profile-content"></div>
   </dialog>
 
-  <!-- This is login UI only. Connect it to Supabase Auth to enable real accounts. -->
   <dialog id="login-dialog">
-    <button class="button secondary close" id="login-close">Close</button>
+    <button class="button secondary close" id="login-close" type="button">Close</button>
     <div class="eyebrow">Konnekt creator network</div>
     <h2>Creator login</h2>
-    <p class="muted">Connect this form to Supabase Auth to enable sign-in and account creation.</p>
-    <p><button class="button" type="button" disabled>Continue with Google</button></p>
-    <label>Email address<input type="email" autocomplete="email"></label>
-    <p><label>Password<input type="password" autocomplete="current-password"></label></p>
-    <button class="button" type="button" disabled>Sign in</button>
+    <p class="muted" id="auth-status">Sign in or create your creator account.</p>
+    <form id="auth-form" class="contact-form">
+      <label>Email address<input id="auth-email" type="email" autocomplete="email" required></label>
+      <label>Password<input id="auth-password" type="password" autocomplete="current-password" minlength="8" required></label>
+      <button class="button" id="signin-button" type="submit">Sign in</button>
+      <button class="button secondary" id="signup-button" type="button">Create account</button>
+      <button class="button secondary" id="signout-button" type="button" hidden>Sign out</button>
+    </form>
   </dialog>
 
   <script>
@@ -544,5 +546,128 @@
 
     renderCreators();
   </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.119.0"></script>
+  <script>
+    (() => {
+      const SUPABASE_URL = 'https://cvfkwnhbqeeyocrahqqs.supabase.co';
+      const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_X226oouJEmKyltu1U-ClwQ_TRiGMGZ4';
+      const client = window.supabase.createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY);
+      let signedInUser = null;
+      const authDialog = document.querySelector('#login-dialog');
+      const authForm = document.querySelector('#auth-form');
+      const authStatus = document.querySelector('#auth-status');
+      const signoutButton = document.querySelector('#signout-button');
+      const signupButton = document.querySelector('#signup-button');
+      const signinButton = document.querySelector('#signin-button');
+      const say = (message) => { authStatus.textContent = message; };
+
+      async function refreshAuth() {
+        const { data: { user } } = await client.auth.getUser();
+        signedInUser = user || null;
+        if (signedInUser) {
+          const { data: existingProfile } = await client.from('profiles').select('id').eq('id', signedInUser.id).maybeSingle();
+          if (!existingProfile) {
+            const fallbackName = (signedInUser.email || 'Konnekt creator').split('@')[0];
+            await client.from('profiles').insert({ id: signedInUser.id, full_name: fallbackName });
+          }
+        }
+        signinButton.hidden = !!signedInUser;
+        signupButton.hidden = !!signedInUser;
+        signoutButton.hidden = !signedInUser;
+        say(signedInUser ? `Signed in as ${signedInUser.email}` : 'Sign in or create your creator account.');
+      }
+
+      authForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const email = document.querySelector('#auth-email').value.trim();
+        const password = document.querySelector('#auth-password').value;
+        const { error } = await client.auth.signInWithPassword({ email, password });
+        say(error ? error.message : 'Signed in successfully.');
+        if (!error) { await refreshAuth(); setTimeout(() => authDialog.close(), 700); }
+      });
+
+      signupButton.addEventListener('click', async () => {
+        const email = document.querySelector('#auth-email').value.trim();
+        const password = document.querySelector('#auth-password').value;
+        if (!email || password.length < 8) { say('Enter a valid email and a password with at least 8 characters.'); return; }
+        const { data, error } = await client.auth.signUp({ email, password });
+        say(error ? error.message : (data.session ? 'Account created and signed in.' : 'Account created. Check your email to confirm, then sign in.'));
+        await refreshAuth();
+      });
+
+      signoutButton.addEventListener('click', async () => {
+        const { error } = await client.auth.signOut();
+        say(error ? error.message : 'Signed out.');
+        await refreshAuth();
+      });
+
+      client.auth.onAuthStateChange(() => { refreshAuth(); });
+
+      async function loadCreatorProfiles() {
+        const { data, error } = await client.from('profiles')
+          .select('id,full_name,creator_role,department_year,bio,interests')
+          .eq('is_public', true).order('full_name');
+        if (error || !data || !data.length) return; // Keep the original sample cards as a graceful fallback.
+        creators.splice(0, creators.length, ...data.map(profile => ({
+          id: profile.id,
+          name: profile.full_name || 'Konnekt creator',
+          role: profile.creator_role || 'Creator',
+          study: profile.department_year || '',
+          bio: profile.bio || '',
+          tags: profile.interests || []
+        })));
+        renderCreators();
+      }
+
+      document.querySelector('#contact-form').addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const form = event.currentTarget;
+        const values = new FormData(form);
+        const payload = {
+          name: String(values.get('name') || '').trim(),
+          email: String(values.get('email') || '').trim(),
+          phone: String(values.get('phone') || '').trim(),
+          organization: String(values.get('organization') || '').trim(),
+          project_type: String(values.get('project') || '').trim(),
+          selected_creators: String(values.get('selected creators') || '').trim(),
+          message: String(values.get('message') || '').trim()
+        };
+        const button = form.querySelector('button[type="submit"]');
+        button.disabled = true;
+        const { error } = await client.from('contact_enquiries').insert(payload);
+        button.disabled = false;
+        if (error) { alert(`We couldn't send your enquiry: ${error.message}`); return; }
+        form.reset();
+        alert('Thank you. Your enquiry has been sent to Konnekt.');
+      });
+
+      document.querySelectorAll('.interest').forEach(button => {
+        button.addEventListener('click', async () => {
+          const title = button.closest('.project-card').querySelector('h3').textContent.trim();
+          if (!signedInUser) {
+            say('Please sign in to submit a project application.');
+            if (!authDialog.open) authDialog.showModal();
+            return;
+          }
+          const { data: project, error: projectError } = await client.from('projects')
+            .select('id,title,category').eq('title', title).eq('status', 'published').maybeSingle();
+          if (projectError || !project) { alert('This project is not available for applications yet.'); return; }
+          const { error } = await client.from('project_applications').insert({
+            project_id: project.id,
+            applicant_id: signedInUser.id,
+            message: `I'm interested in the ${project.title} project (${project.category}).`
+          });
+          if (error) { alert(`We couldn't submit your interest: ${error.message}`); return; }
+          button.textContent = 'Application sent ✓';
+          button.setAttribute('aria-pressed', 'true');
+        }, { once: true });
+      });
+
+      refreshAuth();
+      loadCreatorProfiles();
+    })();
+  </script>
+
 </body>
 </html>
